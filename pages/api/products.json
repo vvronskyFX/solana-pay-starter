@@ -1,0 +1,11 @@
+[
+  {
+    "id": 1,
+    "name": "Book Pack",
+    "price": "0.09",
+    "description": "Get this fire book pack for only $0.09!",
+    "image_url": "https://i.imgur.com/UgsjP5Y.jpeg",
+    "filename": "Book Pack.zip",
+    "hash": "QmNcGPdMmZxrMGZ3sAk1tC9FGcRWma37PEKebzTJH4xvRh"
+  }
+]
