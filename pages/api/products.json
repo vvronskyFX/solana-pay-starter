@@ -7,5 +7,14 @@
     "image_url": "https://i.imgur.com/UgsjP5Y.jpeg",
     "filename": "Book Pack.zip",
     "hash": "QmNcGPdMmZxrMGZ3sAk1tC9FGcRWma37PEKebzTJH4xvRh"
+  },
+  {
+    "id": 2,
+    "name": "Quantitative Trading",
+    "price": "0.10",
+    "image_url": "https://nickgogerty.typepad.com/.a/6a00d83454b17a69e20112791e63e228a4-800wi",
+    "description": "How to Build Your Own Algorithmic Trading Business",
+    "filename": "Quantitative Trading - How to Build Your Own Algorithmic Trading Business.pdf",
+    "hash": "QmWojPyaqv9pYvWPjbsTc8SxjNe2Qa14zJV7xf6kcfQD4H"
   }
 ]

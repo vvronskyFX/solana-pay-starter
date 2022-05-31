@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import CreateProduct from "../components/CreateProduct";
 import Product from "../components/Product";
 // import { PublicKey } from '@solana/web3.js';
 import { useWallet } from '@solana/wallet-adapter-react';
@@ -11,8 +12,20 @@ const TWITTER_LINK = `https://twitter.com/${TWITTER_HANDLE}`;
 const App = () => {
   // This will fetch the users' public key (wallet address) from any wallet we support
   const { publicKey } = useWallet();  
+  const isOwner = ( publicKey ? publicKey.toString() === process.env.NEXT_PUBLIC_OWNER_PUBLIC_KEY : false );
+  const [creating, setCreating] = useState(false);
   const [products, setProducts] = useState([]);
 
+  const renderNotConnectedContainer = () => (
+    <div>
+      <img src="https://media.giphy.com/media/uDj0Fa3q8ipBS/giphy.gif" alt="Books" />
+
+      <div className="button-container">
+        <WalletMultiButton className="cta-button connect-wallet-button" />
+      </div>    
+    </div>
+  );
+  
   useEffect(() => {
     if (publicKey) {
       fetch(`/api/fetchProducts`)
@@ -22,13 +35,7 @@ const App = () => {
           console.log("Products", data);
         });
     }
-  }, [publicKey]);  
-  
-  const renderNotConnectedContainer = () => (
-      <div className="button-container">
-        <WalletMultiButton className="cta-button connect-wallet-button" />
-      </div>    
-  );  
+  }, [publicKey]);
 
   const renderItemBuyContainer = () => (
     <div className="products-container">
@@ -44,10 +51,16 @@ const App = () => {
         <header className="header-container">
           <p className="header"> 📚 Vlad's Book Store 📚</p>
           <p className="sub-text">The only online book store that accepts sh*tcoins</p>
+          
+          {isOwner && (
+            <button className="create-product-button" onClick={() => setCreating(!creating)}>
+              {creating ? "Close" : "Create Product"}
+            </button>
+          )}
         </header>
 
         <main>
-          {/* We only render the connect button if public key doesn't exist */}
+          {creating && <CreateProduct />}
           {publicKey ? renderItemBuyContainer() : renderNotConnectedContainer()}
         </main>
 
