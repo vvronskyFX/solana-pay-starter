@@ -3,14 +3,14 @@ import {
   clusterApiUrl,
   Connection,
   PublicKey,
-  Transaction,
-  SystemProgram,
-  LAMPORTS_PER_SOL,
+  Transaction
 } from "@solana/web3.js";
+import { createTransferCheckedInstruction, getAssociatedTokenAddress, getMint } from "@solana/spl-token";
 import BigNumber from "bignumber.js";
 import products from "./products.json";
 
 // Make sure you replace this with your wallet address!
+const usdcAddress = new PublicKey("Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr");
 const sellerAddress = 'FiRpRLrxGBsFakBtYGAzGj5LRS2vgaSzZ3Ywa7GZvgzu'
 const sellerPublicKey = new PublicKey(sellerAddress);
 
@@ -48,8 +48,12 @@ const createTransaction = async (req, res) => {
     const endpoint = clusterApiUrl(network);
     const connection = new Connection(endpoint);
 
+    const buyerUsdcAddress = await getAssociatedTokenAddress(usdcAddress, buyerPublicKey);
+    const shopUsdcAddress = await getAssociatedTokenAddress(usdcAddress, sellerPublicKey);
     // A blockhash is sort of like an ID for a block. It lets you identify each block.
     const { blockhash } = await connection.getLatestBlockhash("finalized");
+    // This is new, we're getting the mint address of the token we want to transfer
+    const usdcMint = await getMint(connection, usdcAddress);    
     
     // The first two things we need - a recent block ID 
     // and the public key of the fee payer 
@@ -58,14 +62,15 @@ const createTransaction = async (req, res) => {
       feePayer: buyerPublicKey,
     });
 
-    // This is the "action" that the transaction will take
-    // We're just going to transfer some SOL
-    const transferInstruction = SystemProgram.transfer({
-      fromPubkey: buyerPublicKey,
-      // Lamports are the smallest unit of SOL, like Gwei with Ethereum
-      lamports: bigAmount.multipliedBy(LAMPORTS_PER_SOL).toNumber(), 
-      toPubkey: sellerPublicKey,
-    });
+    // Here we're creating a different type of transfer instruction
+    const transferInstruction = createTransferCheckedInstruction(
+      buyerUsdcAddress, 
+      usdcAddress,     // This is the address of the token we want to transfer
+      shopUsdcAddress, 
+      buyerPublicKey, 
+      bigAmount.toNumber() * 10 ** (await usdcMint).decimals, 
+      usdcMint.decimals // The token could have any number of decimals
+    );
 
     // We're adding more instructions to the transaction
     transferInstruction.keys.push({
