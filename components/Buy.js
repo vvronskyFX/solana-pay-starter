@@ -4,7 +4,7 @@ import { findReference, FindReferenceError } from "@solana/pay";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { InfinitySpin } from "react-loader-spinner";
 import IPFSDownload from "./IpfsDownload";
-import { addOrder } from '../lib/api';
+import { addOrder, hasPurchased, fetchItem } from '../lib/api';
 
 const STATUS = {
   Initial: "Initial",
@@ -17,6 +17,7 @@ export default function Buy({ itemID }) {
   const { publicKey, sendTransaction } = useWallet();
   const orderID = useMemo(() => Keypair.generate().publicKey, []); // Public key used to identify the order
 
+  const [item, setItem] = useState(null); // IPFS hash & filename of the purchased item
   const [loading, setLoading] = useState(false); // Loading state of all above
   const [status, setStatus] = useState(STATUS.Initial); // Tracking transaction status
   
@@ -30,7 +31,7 @@ export default function Buy({ itemID }) {
     [publicKey, orderID, itemID]
   );
 
-  // Fetch the transaction object from the server 
+  // Fetch the transaction object from the server (done to avoid tampering)
   const processTransaction = async () => {
     setLoading(true);
     const txResponse = await fetch("../api/createTransaction", {
@@ -63,6 +64,21 @@ export default function Buy({ itemID }) {
   };
 
   useEffect(() => {
+    // Check if this address already has already purchased this item
+    // If so, fetch the item and set paid to true
+    // Async function to avoid blocking the UI
+    async function checkPurchased() {
+      const purchased = await hasPurchased(publicKey, itemID);
+      if (purchased) {
+        setStatus(STATUS.Paid);
+        const item = await fetchItem(itemID);
+        setItem(item);
+      }
+    }
+    checkPurchased();
+  }, [publicKey, itemID]);
+
+  useEffect(() => {
     // Check if transaction was confirmed
     if (status === STATUS.Submitted) {
       setLoading(true);
@@ -92,6 +108,15 @@ export default function Buy({ itemID }) {
         clearInterval(interval);
       };
     }
+    
+    async function getItem(itemID) {
+      const item = await fetchItem(itemID);
+      setItem(item);
+    }
+
+    if (status === STATUS.Paid) {
+      getItem(itemID);
+    }
   }, [status]);
 
   if (!publicKey) {
@@ -108,11 +133,10 @@ export default function Buy({ itemID }) {
 
   return (
     <div>
-      {status === STATUS.Paid ? (
+      {item ? (
         <IPFSDownload 
-          filename="Book Pack.zip" 
-          hash="QmNcGPdMmZxrMGZ3sAk1tC9FGcRWma37PEKebzTJH4xvRh" 
-          cta="Download Books"
+          hash={item.hash}
+          filename={item.filename}  
         />
       ) : (
         <button 
