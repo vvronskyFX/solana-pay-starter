@@ -10,7 +10,7 @@ import BigNumber from "bignumber.js";
 import products from "./products.json";
 
 // Make sure you replace this with your wallet address!
-const usdcAddress = new PublicKey("Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr");
+const usdcAddress = new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"); //Change here between devnet and mainnet USDC addy.
 const sellerAddress = 'FiRpRLrxGBsFakBtYGAzGj5LRS2vgaSzZ3Ywa7GZvgzu'
 const sellerPublicKey = new PublicKey(sellerAddress);
 

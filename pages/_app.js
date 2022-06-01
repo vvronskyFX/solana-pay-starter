@@ -16,8 +16,8 @@ import "../styles/globals.css";
 import "../styles/App.css";
 
 const App = ({ Component, pageProps }) => {
-  // Can be set to 'devnet', 'testnet', or 'mainnet-beta'
-  const network = WalletAdapterNetwork.Devnet;
+  // Can be set to 'devnet', 'testnet', or 'mainnet'
+  const network = WalletAdapterNetwork.mainnet;
 
   // You can also provide a custom RPC endpoint
   const endpoint = useMemo(() => clusterApiUrl(network), [network]);
